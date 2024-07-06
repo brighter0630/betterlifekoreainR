@@ -1,5 +1,7 @@
 library(dplyr)
 library(tidyquant)
+library(stringr)
+library(ggplot2)
 
 options("getSymbols.warning4.0"=FALSE)
 options("getSymbols.yahoo.warning"=FALSE)
@@ -37,6 +39,7 @@ interval = getInterval(diff)
 result.df <- getPrice(get(symbol), symbol)
 
 result.filtered.df <- result.df[seq(nrow(result.df)%%interval, nrow(result.df), interval), ]
+result.filtered.df$date <- as.Date(result.filtered.df$date)
 
 filename = paste0(symbol, "_stock_performance.csv")
 
@@ -47,3 +50,9 @@ if(file.exists(filename)) {
             file=filename)
 }
 
+result.long <- melt(result.filtered.df, id='date', measure = symbol)
+
+result.long %>%
+  ggplot(aes(x=date, y=value, colour=variable)) + geom_line(size=1.2)
+
+         
